@@ -1,5 +1,5 @@
 MODULE skprJson;
-IMPORT skprCharStack, Strings, Out, strutils, StringList;
+IMPORT skprCharStack, skprLogger, Strings, Out, strutils, StringList;
 CONST
     ArrayMaxNumber = 30;
     ArrayMaxNumberChar = 2000;
@@ -158,7 +158,7 @@ BEGIN
     UNTIL characterStack.Count = 0; (* do not trust top it btings OAX on EOL*)
     
     IF j >= LEN(returnString) THEN
-        vpkLogger.Log('ERROR string out of range in JSON parser');
+        skprLogger.Log('ERROR string out of range in JSON parser');
     END;
     ASSERT(j < LEN(returnString));
 
