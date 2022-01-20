@@ -141,12 +141,12 @@ PROCEDURE PushDownString(
     i: LONGINT;
     VAR returnString: ARRAY OF CHAR): LONGINT;
 VAR
-    characterStack: vpkCharacterStack.CharacterStackType;
+    characterStack: skprCharStack.CharacterStackType;
     j , k: LONGINT;
 BEGIN
     NEW(characterStack);
     j := i;
-    characterStack := vpkCharacterStack.Create();
+    characterStack := skprCharStack.Create();
     Empty(returnString);
     REPEAT
         IF (characterStack.Count > 1) & (string[j] = endCharacter) THEN 
@@ -186,7 +186,7 @@ PROCEDURE Create*(text: ARRAY OF CHAR): JsonTypePointer;
 VAR
     self: JsonTypePointer; 
     i, j, terminalIterator, noneTerminalIterator: LONGINT;
-    characterStack: vpkCharacterStack.CharacterStackType;
+    characterStack: skprCharStack.CharacterStackType;
     key, val, nonTerminalVal, string: ARRAY ArrayMaxNumberChar OF CHAR;
     symbol: CHAR;
     symbolStart: CHAR;
@@ -199,7 +199,7 @@ BEGIN
     self.GetTerminalKeys := GetTerminalKeys;
     self.GetNoneTerminalKeys := GetNoneTerminalKeys;
     NEW(characterStack);
-    characterStack := vpkCharacterStack.Create();
+    characterStack := skprCharStack.Create();
     
     i := 0;
     j := 0;
