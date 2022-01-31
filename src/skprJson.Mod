@@ -105,7 +105,9 @@ VAR
     i: LONGINT;
 BEGIN
   IF destination = NIL THEN destination := StringList.Create() END;
+Out.String("self.TermNum = "); Out.Int(self.TerminalNumber, 0); Out.Ln;
   FOR i := 0 TO self.TerminalNumber DO
+    Out.Int(i, 0); Out.String(": "); Out.String(self.TerminalKeys[i]); Out.Ln;
     destination.AppendString(destination, self.TerminalKeys[i]);
   END;
 END GetTerminalKeys;
@@ -115,7 +117,9 @@ VAR
     i: LONGINT;
 BEGIN
   IF destination = NIL THEN destination := StringList.Create() END;
+Out.String("self.TermNum = "); Out.Int(self.TerminalNumber, 0); Out.Ln;
   FOR i := 0 TO self.TerminalNumber - 1 DO
+    Out.Int(i, 0); Out.String(": "); Out.String(self.TerminalKeys[i]); Out.Ln;
     destination.AppendString(destination, self.TerminalValues[i]);
   END;
 END GetTerminalValues;
@@ -124,8 +128,11 @@ PROCEDURE GetNoneTerminalKeys(self : JsonTypePointer; VAR destination : ARRAY OF
 VAR
     i: LONGINT;
 BEGIN
-    FOR i := 0 TO LEN(self.NonTerminalKeys) - 1 DO
+    Out.String("LEN(self.NonTerminalKeys)="); Out.Int(LEN(self.NonTerminalKeys), 0); Out.Ln;
+    FOR i := 0 TO self.NonTerminalNumber - 1 DO
         destination[i] := self.NonTerminalKeys[i];
+        Out.Int(i, 0); Out.String(": ");
+        Out.String(destination[i]); Out.Ln;
     END;
 END GetNoneTerminalKeys;
 (* 
