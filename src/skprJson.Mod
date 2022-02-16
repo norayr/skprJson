@@ -118,7 +118,7 @@ VAR
 BEGIN
   IF destination = NIL THEN destination := StringList.Create() END;
 Out.String("self.TermNum = "); Out.Int(self.TerminalNumber, 0); Out.Ln;
-  FOR i := 0 TO self.TerminalNumber - 1 DO
+  FOR i := 0 TO self.TerminalNumber DO
     Out.Int(i, 0); Out.String(": "); Out.String(self.TerminalKeys[i]); Out.Ln;
     destination.AppendString(destination, self.TerminalValues[i]);
   END;
@@ -204,6 +204,7 @@ BEGIN
     self.GetTerminal := GetTerminal;
     self.GetNonTerminal := GetNonTerminal;
     self.GetTerminalKeys := GetTerminalKeys;
+    self.GetTerminalValues := GetTerminalValues;
     self.GetNoneTerminalKeys := GetNoneTerminalKeys;
     NEW(characterStack);
     characterStack := skprCharStack.Create();
