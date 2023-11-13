@@ -1,5 +1,5 @@
 MODULE skprJson;
-IMPORT skprCharStack, skprLogger, Strings, Out, strutils, StringList;
+IMPORT skprCharStack, skprLogger, Strings, Out, strUtils, StringList;
 CONST
     ArrayMaxNumber = 30;
     ArrayMaxNumberChar = 2000;
@@ -11,7 +11,7 @@ CONST
     coma = ",";
 TYPE
     TString* = ARRAY ArrayMaxNumberChar OF CHAR;
-    
+
     JsonTypePointer* = POINTER TO JsonType;
 
     JsonType* = RECORD
@@ -33,7 +33,7 @@ TYPE
         NonTerminalValues : POINTER TO ARRAY OF JsonTypePointer;
         NonTerminalNumber* : LONGINT;
     END;
-    
+
 VAR
     jsonRecord: JsonTypePointer;
     testValue: ARRAY ArrayMaxNumber OF CHAR;
@@ -68,33 +68,33 @@ PROCEDURE GetTerminal *(self: JsonTypePointer; key: ARRAY OF CHAR; VAR returnVal
 VAR
     i: LONGINT;
     noneTerminal: JsonTypePointer;
-    strings: strutils.pstrings;
+    strings: strUtils.pstrings;
     parent, children: ARRAY ArrayMaxNumber OF CHAR;
 BEGIN
 
     FOR i := 0 TO self.TerminalNumber DO
         IF Strings.Match(key, self.TerminalKeys[i]) THEN COPY(self.TerminalValues[i], returnValue); RETURN TRUE END;
     END;
-    
-    strings := strutils.tokenize(key, '.');
-    
+
+    strings := strUtils.tokenize(key, '.');
+
     IF LEN(strings^) < 1 THEN RETURN FALSE END;
-    
+
     COPY(strings^[0]^, parent);
-    
+
     IF Strings.Length(parent) < 1 THEN RETURN FALSE END;
-    
+
     noneTerminal := self.GetNonTerminal(self, parent);
 
     IF noneTerminal = NIL THEN RETURN FALSE END;
-    
+
     FOR i := 1 TO LEN(strings^) - 1 DO
         Strings.Append(strings^[i]^, children);
         IF i < LEN(strings^) - 1 THEN
             Strings.Append(".", children);
         END;
     END;
-    
+
     RETURN noneTerminal.GetTerminal(noneTerminal, children, returnValue);
 
     RETURN FALSE;
@@ -163,7 +163,7 @@ BEGIN
             INC(j);
         END;
     UNTIL characterStack.Count = 0; (* do not trust top it btings OAX on EOL*)
-    
+
     IF j >= LEN(returnString) THEN
         skprLogger.Log('ERROR string out of range in JSON parser');
     END;
@@ -208,17 +208,17 @@ BEGIN
     self.GetNoneTerminalKeys := GetNoneTerminalKeys;
     NEW(characterStack);
     characterStack := skprCharStack.Create();
-    
+
     i := 0;
     j := 0;
     terminalIterator := 0;
     noneTerminalIterator := 0;
-    
+
     Empty(key);
     Empty(val);
     Empty(nonTerminalVal);
     Empty(string);
-    
+
     quoteStart := FALSE;
 
     REPEAT
@@ -234,7 +234,7 @@ BEGIN
 
         (* Logger.LogIntLn(i); *)
         (* IF i > 508 THEN
-            Logger.Log(text);        
+            Logger.Log(text);
         END; *)
         (* terminals *)
         IF symbol = quote THEN
@@ -247,7 +247,7 @@ BEGIN
             ELSE
                 COPY(string, key);
             END;
-            
+
             Empty(string);
         END;
 
@@ -256,40 +256,40 @@ BEGIN
             deQuote(val, self.TerminalValues[terminalIterator]);
 
             INC(terminalIterator);
-                        
+
             Empty(key);
             Empty(val);
         END;
-        
-        (* none terminals *)        
+
+        (* none terminals *)
         IF symbol = symbolBracketStart THEN
             i := PushDownString(text, symbolBracketStart, symbolBracketEnd, i, string);
         END;
-        
+
         IF (Strings.Length(string) > 0) & (symbol = symbolBracketStart) THEN
             IF Strings.Length(key) > 0 THEN
                 COPY(string, nonTerminalVal);
             END;
-            
+
             Empty(string);
         END;
 
         IF (Strings.Length(key) > 0) & (Strings.Length(nonTerminalVal) > 0) THEN
             deQuote(key, self.NonTerminalKeys[noneTerminalIterator]);
             self.NonTerminalValues[noneTerminalIterator] := Create(nonTerminalVal);
-            
+
             INC(noneTerminalIterator);
 
             Empty(key);
             Empty(nonTerminalVal);
         END;
-        
+
         INC(i);
     UNTIL (i >= LEN(text) - 1) OR (text[i] = 0X);
-    
+
     self.NonTerminalNumber := noneTerminalIterator;
     self.TerminalNumber := terminalIterator;
-    
+
     RETURN self;
 END Create;
 
