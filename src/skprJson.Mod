@@ -8,6 +8,7 @@ CONST
     symbolBracketEnd = "}";
     (* TODO: Reverse " and ' *)
     quote = '"';
+    colon = ':';
     coma = ",";
 TYPE
     TString* = ARRAY ArrayMaxNumberChar OF CHAR;
@@ -135,7 +136,7 @@ BEGIN
         Out.String(destination[i]); Out.Ln;
     END;
 END GetNoneTerminalKeys;
-(* 
+(*
     TODO:
         Create a good validation for comas
         Create a good validation for name repetition
@@ -149,31 +150,34 @@ PROCEDURE PushDownString(
     VAR returnString: ARRAY OF CHAR): LONGINT;
 VAR
     characterStack: skprCharStack.CharacterStackType;
-    j , k: LONGINT;
+    j, k: LONGINT;
+    popped: CHAR;
 BEGIN
     NEW(characterStack);
     j := i;
     characterStack := skprCharStack.Create();
     Empty(returnString);
+
     REPEAT
-        IF (characterStack.Count > 1) & (string[j] = endCharacter) THEN 
-            REPEAT UNTIL characterStack.pop(characterStack) = startCharacter;
+        IF (string[j] = 0X) OR (string[j] = 0AX) OR (string[j] = 0DX) THEN
+            Out.String("Error: End of line or string without closing quote."); Out.Ln;
+            HALT(1);
+        ELSIF (characterStack.Count > 1) & (string[j] = endCharacter) THEN
+            popped := characterStack.pop(characterStack);
+        ELSIF (string[j] = colon) & (characterStack.Count = 1) THEN
+            Out.String("Error: Missing closing quote for key."); Out.Ln;
+            HALT(1);
         ELSE
             characterStack.push(characterStack, string[j]);
             INC(j);
         END;
-    UNTIL characterStack.Count = 0; (* do not trust top it btings OAX on EOL*)
+    UNTIL characterStack.Count = 0;
 
-    IF j >= LEN(returnString) THEN
-        skprLogger.Log('ERROR string out of range in JSON parser');
-    END;
-    ASSERT(j < LEN(returnString));
-
-    FOR k := i TO j DO
+    FOR k := i TO j - 1 DO
         returnString[k - i] := string[k];
     END;
 
-    RETURN j; (* returning next symbol of quote *)
+    RETURN j; (* returning next symbol after quote *)
 END PushDownString;
 
 PROCEDURE deQuote(text: ARRAY OF CHAR; VAR result: ARRAY OF CHAR);
@@ -191,7 +195,7 @@ END deQuote;
 
 PROCEDURE Create*(text: ARRAY OF CHAR): JsonTypePointer;
 VAR
-    self: JsonTypePointer; 
+    self: JsonTypePointer;
     i, j, terminalIterator, noneTerminalIterator: LONGINT;
     characterStack: skprCharStack.CharacterStackType;
     key, val, nonTerminalVal, string: ARRAY ArrayMaxNumberChar OF CHAR;
